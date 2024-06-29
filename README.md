@@ -1,76 +1,75 @@
-AccountCreation Smart Contract
-Overview
-The AccountCreation smart contract allows users to create accounts with age verification and unique names. It includes functionality for checking age, creating accounts, and retrieving user details. This contract is implemented in Solidity and is intended to run on the Ethereum blockchain.
 
-Prerequisites
-Solidity compiler version 0.8.25 or later.
-An Ethereum wallet/address to interact with the contract.
-Contract Structure
-User Struct
-The contract defines a User struct with the following properties:
+ETH_AVAX_PROOF-Intermediate_EVM_Course
+MODULE - 1 FINAL PROJECT
+This project demonstrates error handling methods in Solidity through the implementation of an account creation system. The contract includes examples of using require, assert, and revert statements.
 
-age: A uint representing the user's age.
-name: A string representing the user's name.
-isAgeVerified: A bool indicating if the user's age has been verified.
-Mappings
-The contract uses two mappings:
+CODE EXPLANATION:
+solidity
+Copy code
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.25;
 
-users: Maps an address to a User struct, storing user details.
-nameExists: Maps a string (name) to a bool, indicating if a name is already taken.
-Functions
-checkAge
-solidity
-Copy code
-function checkAge(uint _age) public
-Description: Verifies if the user's age is greater than 18.
-Parameters: _age - The age to be verified.
-Requirements: The user must be older than 18 to pass the check.
-Effects: Sets the user's age and marks the age as verified.
-createAccount
-solidity
-Copy code
-function createAccount(string memory _name) public
-Description: Creates an account with a unique name for the user.
-Parameters: _name - The name to be assigned to the user's account.
-Requirements:
-The user's age must be verified.
-The name must not be already taken.
-Effects: Assigns the name to the user and marks the name as taken.
-verifyAgeCheck
-solidity
-Copy code
-function verifyAgeCheck() public view returns (string memory)
-Description: Checks if the user's age has been verified.
-Returns: "Legal" if the age is verified, otherwise "Not Legal".
-getUser
-solidity
-Copy code
-function getUser() public view returns (uint, string memory, bool)
-Description: Retrieves the details of the user.
-Returns: The user's age, name, and age verification status.
-Example Usage
-Check Age:
+contract AccountCreation  {
 
-solidity
-Copy code
-contractInstance.checkAge(21);
-Create Account:
+    struct User  {
+        uint age;
+        string name;
+        bool isAgeVerified;
+    }
 
-solidity
-Copy code
-contractInstance.createAccount("Alice");
-Verify Age Check:
+    mapping(address => User) private users;
+    mapping(string => bool) private nameExists;
 
-solidity
-Copy code
-string memory status = contractInstance.verifyAgeCheck();
-Get User Details:
+     // Function to check age using require statement
+    function checkAge(uint _age) public  {
+        require(_age > 18, "You must be older than 18 to create an account");
+        users[msg.sender].age = _age;
+        users[msg.sender].isAgeVerified = true;
+    }
 
-solidity
-Copy code
+     // Function to create an account using revert statement
+    function createAccount(string memory _name) public  {
+        if (users[msg.sender].isAgeVerified == false) {
+            revert("You are not legal to create an account");
+        }
+        require(nameExists[_name] == false, "Name is already taken");
+        users[msg.sender].name = _name;
+        nameExists[_name] = true;
+    }
+
+     // Function to verify that the user has checked their age using assert statement
+    function verifyAgeCheck() public view returns (string memory) {
+        if(users[msg.sender].isAgeVerified == true){
+            return("Legal");
+        } else{
+            return("Not Legal");
+        }
+    }
+
+     // Function to get user details
+    function getUser() public view returns (uint, string memory, bool) {
+        User memory user = users[msg.sender];
+        return (user.age, user.name, user.isAgeVerified);
+    } 
+}
+require(_age > 18, "You must be older than 18 to create an account");
+This line is a condition that checks if the user's age is greater than 18. If it's not, the function will revert the transaction and display the error message "You must be older than 18 to create an account".
+
+users[msg.sender].age = _age;: This line sets the user's age.
+users[msg.sender].isAgeVerified = true;: This line marks the user's age as verified.
+if (users[msg.sender].isAgeVerified == false) { revert("You are not legal to create an account"); }
+This line checks if the user's age has been verified. If it hasn't, the function will revert the transaction and display the error message "You are not legal to create an account".
+
+require(nameExists[_name] == false, "Name is already taken");: This line ensures the name is unique.
+users[msg.sender].name = _name;: This line assigns the name to the user.
+nameExists[_name] = true;: This line marks the name as taken.
+assert(users[msg.sender].isAgeVerified == true);
+This line is an assertion that checks if the user's age has been verified. If not, it will throw an exception.
+
+return("Legal");: This line returns "Legal" if the age is verified.
+return("Not Legal");: This line returns "Not Legal" if the age is not verified.
 (uint age, string memory name, bool isAgeVerified) = contractInstance.getUser();
-Error Handling
-The checkAge function uses a require statement to ensure the user is older than 18.
-The createAccount function uses a revert statement to prevent account creation if the user's age is not verified and a require statement to ensure the name is unique.
-License
+This function call retrieves the user's details: age, name, and age verification status.
+
+LICENSE
 This project is licensed under the MIT License.
